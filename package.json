@@ -1,0 +1,16 @@
+{
+  "name": "camerja",
+  "version": "0.0.0",
+  "description": "Hello Expo!",
+  "author": null,
+  "private": true,
+  "main": "node_modules/expo/AppEntry.js",
+  "dependencies": {
+    "expo": "24.0.0-rc.1",
+    "get-pixels": "^3.3.0",
+    "path": "^0.12.7",
+    "react": "16.0.0",
+    "react-native": "expo/react-native#sdk-24",
+    "react-native-canvas": "^0.1.20"
+  }
+}
