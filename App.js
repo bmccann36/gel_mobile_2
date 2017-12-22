@@ -32,7 +32,7 @@ export default class CameraScreen extends React.Component {
     ratio: '16:9',
     ratios: [],
     photoId: 1,
-    showGallery: false,
+    showGallery: true,
     photos: [],
     faces: [],
   };
