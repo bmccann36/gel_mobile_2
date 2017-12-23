@@ -1,7 +1,10 @@
 import { Constants, Camera, FileSystem } from 'expo';
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Slider, Vibration } from 'react-native';
-import GalleryScreen from './GalleryScreen';
+import { StackNavigator } from 'react-navigation';
+
+import CanvasView from './CanvasView'
+
 
 const landmarkSize = 2;
 
@@ -24,17 +27,13 @@ const wbOrder = {
 export default class CameraScreen extends React.Component {
   state = {
     flash: 'off',
-    zoom: 0,
-    autoFocus: 'on',
     depth: 0,
     type: 'back',
     whiteBalance: 'auto',
     ratio: '16:9',
     ratios: [],
     photoId: 1,
-    showGallery: false,
     photos: [],
-    faces: [],
   };
 
   componentDidMount() {
@@ -47,18 +46,6 @@ export default class CameraScreen extends React.Component {
     const ratios = await this.camera.getSupportedRatios();
     return ratios;
   };
-
-  toggleView() {
-    this.setState({
-      showGallery: !this.state.showGallery,
-    });
-  }
-
-  toggleFacing() {
-    this.setState({
-      type: this.state.type === 'back' ? 'front' : 'back',
-    });
-  }
 
   toggleFlash() {
     this.setState({
@@ -78,30 +65,6 @@ export default class CameraScreen extends React.Component {
     });
   }
 
-  toggleFocus() {
-    this.setState({
-      autoFocus: this.state.autoFocus === 'on' ? 'off' : 'on',
-    });
-  }
-
-  zoomOut() {
-    this.setState({
-      zoom: this.state.zoom - 0.1 < 0 ? 0 : this.state.zoom - 0.1,
-    });
-  }
-
-  zoomIn() {
-    this.setState({
-      zoom: this.state.zoom + 0.1 > 1 ? 1 : this.state.zoom + 0.1,
-    });
-  }
-
-  setFocusDepth(depth) {
-    this.setState({
-      depth,
-    });
-  }
-
   takePicture = async function () {
     if (this.camera) {
       this.camera.takePictureAsync({ base64: true }).then(data => {
@@ -118,102 +81,21 @@ export default class CameraScreen extends React.Component {
     }
   };
 
-  onFacesDetected = ({ faces }) => this.setState({ faces });
-  onFaceDetectionError = state => console.warn('Faces detection error:', state);
 
-  renderGallery() {
-    return <GalleryScreen onPress={this.toggleView.bind(this)} />;
-  }
-
-  renderFace({ bounds, faceID, rollAngle, yawAngle }) {
+  render() {
+    const { navigate } = this.props.navigation
     return (
-      <View
-        key={faceID}
-        transform={[
-          { perspective: 600 },
-          { rotateZ: `${rollAngle.toFixed(0)}deg` },
-          { rotateY: `${yawAngle.toFixed(0)}deg` },
-        ]}
-        style={[
-          styles.face,
-          {
-            ...bounds.size,
-            left: bounds.origin.x,
-            top: bounds.origin.y,
-          },
-        ]}>
-        <Text style={styles.faceText}>ID: {faceID}</Text>
-        <Text style={styles.faceText}>rollAngle: {rollAngle.toFixed(0)}</Text>
-        <Text style={styles.faceText}>yawAngle: {yawAngle.toFixed(0)}</Text>
-      </View>
-    );
-  }
-
-  renderLandmarksOfFace(face) {
-    const renderLandmark = position =>
-      position && (
-        <View
-          style={[
-            styles.landmark,
-            {
-              left: position.x - landmarkSize / 2,
-              top: position.y - landmarkSize / 2,
-            },
-          ]}
-        />
-      );
-    return (
-      <View key={`landmarks-${face.faceID}`}>
-        {renderLandmark(face.leftEyePosition)}
-        {renderLandmark(face.rightEyePosition)}
-        {renderLandmark(face.leftEarPosition)}
-        {renderLandmark(face.rightEarPosition)}
-        {renderLandmark(face.leftCheekPosition)}
-        {renderLandmark(face.rightCheekPosition)}
-        {renderLandmark(face.leftMouthPosition)}
-        {renderLandmark(face.mouthPosition)}
-        {renderLandmark(face.rightMouthPosition)}
-        {renderLandmark(face.noseBasePosition)}
-        {renderLandmark(face.bottomMouthPosition)}
-      </View>
-    );
-  }
-
-  renderFaces() {
-    return (
-      <View style={styles.facesContainer} pointerEvents="none">
-        {this.state.faces.map(this.renderFace)}
-      </View>
-    );
-  }
-
-  renderLandmarks() {
-    return (
-      <View style={styles.facesContainer} pointerEvents="none">
-        {this.state.faces.map(this.renderLandmarksOfFace)}
-      </View>
-    );
-  }
-
-  renderCamera() {
-    return (
+      <View style={styles.container}>
       <Camera
         ref={ref => {
           this.camera = ref;
         }}
-        style={{
-          flex: 1,
-        }}
+        style={{ flex: 1 }}
         type={this.state.type}
         flashMode={this.state.flash}
-        autoFocus={this.state.autoFocus}
-        zoom={this.state.zoom}
         whiteBalance={this.state.whiteBalance}
         ratio={this.state.ratio}
-        faceDetectionLandmarks={Camera.Constants.FaceDetection.Landmarks.all}
-        onFacesDetected={this.onFacesDetected}
-        onFaceDetectionError={this.onFaceDetectionError}
-        focusDepth={this.state.depth}>
+      >
         <View
           style={{
             flex: 0.5,
@@ -221,9 +103,6 @@ export default class CameraScreen extends React.Component {
             flexDirection: 'row',
             justifyContent: 'space-around',
           }}>
-          <TouchableOpacity style={styles.flipButton} onPress={this.toggleFacing.bind(this)}>
-            <Text style={styles.flipText}> FLIP </Text>
-          </TouchableOpacity>
           <TouchableOpacity style={styles.flipButton} onPress={this.toggleFlash.bind(this)}>
             <Text style={styles.flipText}> FLASH: {this.state.flash} </Text>
           </TouchableOpacity>
@@ -233,61 +112,24 @@ export default class CameraScreen extends React.Component {
         </View>
         <View
           style={{
-            flex: 0.4,
-            backgroundColor: 'transparent',
-            flexDirection: 'row',
-            alignSelf: 'flex-end',
-          }}>
-          <Slider
-            style={{ width: 150, marginTop: 15, alignSelf: 'flex-end' }}
-            onValueChange={this.setFocusDepth.bind(this)}
-            step={0.1}
-            disabled={this.state.autoFocus === 'on'}
-          />
-        </View>
-        <View
-          style={{
             flex: 0.1,
             backgroundColor: 'transparent',
             flexDirection: 'row',
             alignSelf: 'flex-end',
           }}>
           <TouchableOpacity
-            style={[styles.flipButton, { flex: 0.1, alignSelf: 'flex-end' }]}
-            onPress={this.zoomIn.bind(this)}>
-            <Text style={styles.flipText}> + </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.flipButton, { flex: 0.1, alignSelf: 'flex-end' }]}
-            onPress={this.zoomOut.bind(this)}>
-            <Text style={styles.flipText}> - </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.flipButton, { flex: 0.25, alignSelf: 'flex-end' }]}
-            onPress={this.toggleFocus.bind(this)}>
-            <Text style={styles.flipText}> AF : {this.state.autoFocus} </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
             style={[styles.flipButton, styles.picButton, { flex: 0.3, alignSelf: 'flex-end' }]}
             onPress={this.takePicture.bind(this)}>
             <Text style={styles.flipText}> SNAP </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.flipButton, styles.galleryButton, { flex: 0.25, alignSelf: 'flex-end' }]}
-            onPress={this.toggleView.bind(this)}>
-            <Text style={styles.flipText}> Gallery </Text>
+            style={[styles.flipButton, styles.galleryButton, { flex: 0.3, alignSelf: 'flex-end' }]}
+            onPress={()=> navigate('CanvasView')}>
+            <Text style={styles.flipText}> Canvas View </Text>
           </TouchableOpacity>
-        </View>
-        {this.renderFaces()}
-        {this.renderLandmarks()}
-      </Camera>
-    );
-  }
 
-  render() {
-    return (
-      <View style={styles.container}>
-        {this.state.showGallery ? this.renderGallery() : this.renderCamera()}
+        </View>
+      </Camera>
       </View>
     );
   }
@@ -301,11 +143,6 @@ const styles = StyleSheet.create({
   },
   navigation: {
     flex: 1,
-  },
-  gallery: {
-    flex: 1,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
   },
   flipButton: {
     flex: 0.3,
@@ -338,35 +175,6 @@ const styles = StyleSheet.create({
   },
   galleryButton: {
     backgroundColor: 'indianred',
-  },
-  facesContainer: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    left: 0,
-    top: 0,
-  },
-  face: {
-    padding: 10,
-    borderWidth: 2,
-    borderRadius: 2,
-    position: 'absolute',
-    borderColor: '#FFD700',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  landmark: {
-    width: landmarkSize,
-    height: landmarkSize,
-    position: 'absolute',
-    backgroundColor: 'red',
-  },
-  faceText: {
-    color: '#FFD700',
-    fontWeight: 'bold',
-    textAlign: 'center',
-    margin: 10,
-    backgroundColor: 'transparent',
   },
   row: {
     flexDirection: 'row',
