@@ -5,16 +5,13 @@ import { StackNavigator } from 'react-navigation';
 
 import CanvasView from './CanvasView'
 
-
 const landmarkSize = 2;
-
 const flashModeOrder = {
   off: 'on',
   on: 'auto',
   auto: 'torch',
   torch: 'off',
 };
-
 const wbOrder = {
   auto: 'sunny',
   sunny: 'cloudy',
@@ -40,6 +37,17 @@ export default class CameraScreen extends React.Component {
     FileSystem.makeDirectoryAsync(FileSystem.documentDirectory + 'photos').catch(e => {
       console.log(e, 'Directory exists');
     });
+  }
+
+  clearCache(){
+    FileSystem.deleteAsync(`${FileSystem.documentDirectory}photos/Photo_1.jpg`)
+    FileSystem.deleteAsync(`${FileSystem.documentDirectory}photos/Photo_2.jpg`)
+    .then(()=>{
+      console.log('deleted photos')
+    })
+    .then(()=>{
+      this.setState({photoId: 1})
+    })
   }
 
   getRatios = async function () {
@@ -126,6 +134,11 @@ export default class CameraScreen extends React.Component {
             style={[styles.flipButton, styles.galleryButton, { flex: 0.3, alignSelf: 'flex-end' }]}
             onPress={()=> navigate('CanvasView')}>
             <Text style={styles.flipText}> Canvas View </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.flipButton, styles.galleryButton, { flex: 0.3, alignSelf: 'flex-end' }]}
+            onPress={this.clearCache.bind(this)}>
+            <Text style={styles.flipText}> Clear Cache</Text>
           </TouchableOpacity>
 
         </View>
