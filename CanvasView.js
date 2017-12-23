@@ -10,16 +10,17 @@ const CANVAS_W = 200
 
 export default class CanvasView extends React.Component {
 
-  componentDidMount(){
+  componentDidMount() {
     let canvas = this.canvasRef
     let srcImg = `${FileSystem.documentDirectory}photos/Photo_1.jpg`
-    paintCanvas(srcImg, canvas)
     let canvas2 = this.canvasRef2
     let srcImg2 = `${FileSystem.documentDirectory}photos/Photo_2.jpg`
-    paintCanvas(srcImg2, canvas2)
-
-
+    const p1 = drawCanvasAsync(srcImg, canvas)
+    const p2 = drawCanvasAsync(srcImg2, canvas2)
+    Promise.all([p1, p2])
   }
+
+
 
   render() {
     const { navigate } = this.props.navigation
@@ -39,14 +40,18 @@ const styles = StyleSheet.create({
   },
 });
 
-function paintCanvas(srcImg, canvas){
-  const image = new CanvasImage(canvas);
-  canvas.width = CANVAS_W
-  canvas.height = CANVAS_H
-  const context = canvas.getContext('2d');
-  image.src = srcImg
-  image.addEventListener('load', () => {
-    context.drawImage(image, 0, 0, 200, 115);
+
+function drawCanvasAsync(srcImg, canvas) {
+  return new Promise(resolve => {
+    const image = new CanvasImage(canvas);
+    canvas.width = CANVAS_W
+    canvas.height = CANVAS_H
+    const context = canvas.getContext('2d');
+    image.src = srcImg
+    image.addEventListener('load', () => {
+      context.drawImage(image, 0, 0, 200, 115);
+      resolve()
+    })
   })
 }
 

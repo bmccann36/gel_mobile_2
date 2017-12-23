@@ -40,17 +40,19 @@ export default class CameraScreen extends React.Component {
   }
 
   clearCache() {
+    Expo.FileSystem.readDirectoryAsync(`${FileSystem.documentDirectory}photos`)
+      .then((result => console.log('files in dir before', result)))
     FileSystem.deleteAsync(`${FileSystem.documentDirectory}photos/Photo_1.jpg`)
+      .then(() => { }) // so I don't get a rejection error, there has to be a better way
     FileSystem.deleteAsync(`${FileSystem.documentDirectory}photos/Photo_2.jpg`)
-      .then(() => {
-        console.log('deleted photos')
-      })
-      .then(() => {
+      .then(() => { })
+    Expo.FileSystem.readDirectoryAsync(`${FileSystem.documentDirectory}photos`)
+      .then(result => {
+        console.log('files in dir after', result)
         this.setState({ photoId: 1 })
         Vibration.vibrate();
       })
-      .catch(err=> console.log('the canvas is probably empty'))
-
+      .catch(err => console.log('the canvas is probably empty'))
   }
 
   getRatios = async function () {
