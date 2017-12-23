@@ -39,15 +39,18 @@ export default class CameraScreen extends React.Component {
     });
   }
 
-  clearCache(){
+  clearCache() {
     FileSystem.deleteAsync(`${FileSystem.documentDirectory}photos/Photo_1.jpg`)
     FileSystem.deleteAsync(`${FileSystem.documentDirectory}photos/Photo_2.jpg`)
-    .then(()=>{
-      console.log('deleted photos')
-    })
-    .then(()=>{
-      this.setState({photoId: 1})
-    })
+      .then(() => {
+        console.log('deleted photos')
+      })
+      .then(() => {
+        this.setState({ photoId: 1 })
+        Vibration.vibrate();
+      })
+      .catch(err=> console.log('the canvas is probably empty'))
+
   }
 
   getRatios = async function () {
@@ -94,55 +97,56 @@ export default class CameraScreen extends React.Component {
     const { navigate } = this.props.navigation
     return (
       <View style={styles.container}>
-      <Camera
-        ref={ref => {
-          this.camera = ref;
-        }}
-        style={{ flex: 1 }}
-        type={this.state.type}
-        flashMode={this.state.flash}
-        whiteBalance={this.state.whiteBalance}
-        ratio={this.state.ratio}
-      >
-        <View
-          style={{
-            flex: 0.5,
-            backgroundColor: 'transparent',
-            flexDirection: 'row',
-            justifyContent: 'space-around',
-          }}>
-          <TouchableOpacity style={styles.flipButton} onPress={this.toggleFlash.bind(this)}>
-            <Text style={styles.flipText}> FLASH: {this.state.flash} </Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.flipButton} onPress={this.toggleWB.bind(this)}>
-            <Text style={styles.flipText}> WB: {this.state.whiteBalance} </Text>
-          </TouchableOpacity>
-        </View>
-        <View
-          style={{
-            flex: 0.1,
-            backgroundColor: 'transparent',
-            flexDirection: 'row',
-            alignSelf: 'flex-end',
-          }}>
-          <TouchableOpacity
-            style={[styles.flipButton, styles.picButton, { flex: 0.3, alignSelf: 'flex-end' }]}
-            onPress={this.takePicture.bind(this)}>
-            <Text style={styles.flipText}> SNAP </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.flipButton, styles.galleryButton, { flex: 0.3, alignSelf: 'flex-end' }]}
-            onPress={()=> navigate('CanvasView')}>
-            <Text style={styles.flipText}> Canvas View </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.flipButton, styles.galleryButton, { flex: 0.3, alignSelf: 'flex-end' }]}
-            onPress={this.clearCache.bind(this)}>
-            <Text style={styles.flipText}> Clear Cache</Text>
-          </TouchableOpacity>
+        <Camera
+          ref={ref => {
+            this.camera = ref;
+          }}
+          style={{ flex: 1 }}
+          type={this.state.type}
+          flashMode={this.state.flash}
+          whiteBalance={this.state.whiteBalance}
+          ratio={this.state.ratio}
+        >
+          <View
+            style={{
+              flex: 0.8,
+              backgroundColor: 'transparent',
+              opacity: 40,
+              flexDirection: 'row',
+              justifyContent: 'space-around',
+            }}>
+            <TouchableOpacity style={styles.flipButton} onPress={this.toggleFlash.bind(this)}>
+              <Text style={styles.flipText}> FLASH: {this.state.flash} </Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.flipButton} onPress={this.toggleWB.bind(this)}>
+              <Text style={styles.flipText}> WB: {this.state.whiteBalance} </Text>
+            </TouchableOpacity>
+          </View>
+          <View
+            style={{
+              flex: 0.1,
+              backgroundColor: 'transparent',
+              flexDirection: 'row',
+              alignSelf: 'flex-end',
+            }}>
+            <TouchableOpacity
+              style={[styles.flipButton, styles.picButton, { flex: 0.3, alignSelf: 'flex-end' }]}
+              onPress={this.takePicture.bind(this)}>
+              <Text style={styles.flipText}> SNAP </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.flipButton, styles.galleryButton, { flex: 0.3, alignSelf: 'flex-end' }]}
+              onPress={() => navigate('CanvasView')}>
+              <Text style={styles.flipText}> Canvas View </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.flipButton, styles.galleryButton, { flex: 0.3, alignSelf: 'flex-end' }]}
+              onPress={this.clearCache.bind(this)}>
+              <Text style={styles.flipText}> Clear Cache</Text>
+            </TouchableOpacity>
 
-        </View>
-      </Camera>
+          </View>
+        </Camera>
       </View>
     );
   }
@@ -154,9 +158,9 @@ const styles = StyleSheet.create({
     paddingTop: Constants.statusBarHeight,
     backgroundColor: '#000',
   },
-  navigation: {
-    flex: 1,
-  },
+  // navigation: {
+  //   flex: 1,
+  // },
   flipButton: {
     flex: 0.3,
     height: 40,
