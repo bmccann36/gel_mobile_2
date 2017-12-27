@@ -39,18 +39,13 @@ export default class CameraScreen extends React.Component {
     });
   }
 
-  clearCache() {
-    FileSystem.deleteAsync(`${FileSystem.documentDirectory}photos/Photo_1.jpg`)
-    FileSystem.deleteAsync(`${FileSystem.documentDirectory}photos/Photo_2.jpg`)
-      .then(() => {
-        console.log('deleted photos')
-      })
-      .then(() => {
-        this.setState({ photoId: 1 })
-        Vibration.vibrate();
-      })
-      .catch(err=> console.log('the canvas is probably empty'))
-
+  async clearCache() {
+    const filesList = await Expo.FileSystem.readDirectoryAsync(`${FileSystem.documentDirectory}photos`)
+    filesList.forEach((file) => {
+      FileSystem.deleteAsync(`${FileSystem.documentDirectory}photos/${file}`)
+    })
+    this.setState({ photoId: 1 })
+    Vibration.vibrate();
   }
 
   getRatios = async function () {
