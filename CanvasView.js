@@ -11,13 +11,24 @@ const CANVAS_W = 200
 export default class CanvasView extends React.Component {
 
   componentDidMount() {
+    let cal;
+    let mod;
     let canvas = this.canvasRef
     let srcImg = `${FileSystem.documentDirectory}photos/Photo_1.jpg`
     let canvas2 = this.canvasRef2
     let srcImg2 = `${FileSystem.documentDirectory}photos/Photo_2.jpg`
+
+    // drawCanvasAsync(srcImg, canvas)
+    //   .then(data => { console.log((Object.keys(data)).length) })
     const p1 = drawCanvasAsync(srcImg, canvas)
     const p2 = drawCanvasAsync(srcImg2, canvas2)
     Promise.all([p1, p2])
+      .then((result) => {
+        cal = (result[0])
+        mod = (result[1])
+      })
+
+
   }
 
 
@@ -50,7 +61,11 @@ function drawCanvasAsync(srcImg, canvas) {
     image.src = srcImg
     image.addEventListener('load', () => {
       context.drawImage(image, 0, 0, 200, 115);
-      resolve()
+      // (1, 1, 398, 228)
+      context.getImageData(1, 1, 1, 1)
+        .then(dataObj => {
+          resolve(dataObj.data)
+        })
     })
   })
 }
