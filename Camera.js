@@ -46,6 +46,7 @@ export default class CameraScreen extends React.Component {
     })
     this.setState({ photoId: 1 })
     Vibration.vibrate();
+    //
   }
 
   getRatios = async function () {
@@ -73,7 +74,7 @@ export default class CameraScreen extends React.Component {
 
   takePicture = async function () {
     if (this.camera) {
-      this.camera.takePictureAsync({ base64: true }).then(data => {
+      this.camera.takePictureAsync().then(data => {
         FileSystem.moveAsync({
           from: data.uri,
           to: `${FileSystem.documentDirectory}photos/Photo_${this.state.photoId}.jpg`,
