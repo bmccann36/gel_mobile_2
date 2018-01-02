@@ -1,8 +1,6 @@
-import React from 'react'
+
 import { StackNavigator } from 'react-navigation';
 
-
-import GalleryScreen from './GalleryScreen'
 import CanvasView from './CanvasView'
 import Camera from './Camera'
 
