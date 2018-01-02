@@ -7,10 +7,10 @@ import CanvasView from './CanvasView'
 
 const landmarkSize = 2;
 const flashModeOrder = {
-  off: 'on',
-  on: 'auto',
-  auto: 'torch',
-  torch: 'off',
+  off: 'torch',
+  torch: 'auto',
+  auto: 'on',
+  on: 'off',
 };
 const wbOrder = {
   auto: 'sunny',
@@ -26,7 +26,7 @@ export default class CameraScreen extends React.Component {
     flash: 'off',
     depth: 0,
     type: 'back',
-    whiteBalance: 'auto',
+    whiteBalance: 'fluorescent',
     ratio: '16:9',
     ratios: [],
     photoId: 1,
@@ -34,19 +34,20 @@ export default class CameraScreen extends React.Component {
   };
 
   componentDidMount() {
-    FileSystem.makeDirectoryAsync(FileSystem.documentDirectory + 'photos').catch(e => {
+    Expo.FileSystem.makeDirectoryAsync(FileSystem.documentDirectory + 'photos').catch(e => {
       console.log(e, 'Directory exists');
     });
   }
 
   async clearCache() {
     const filesList = await Expo.FileSystem.readDirectoryAsync(`${FileSystem.documentDirectory}photos`)
+
     filesList.forEach((file) => {
-      FileSystem.deleteAsync(`${FileSystem.documentDirectory}photos/${file}`)
+      Expo.FileSystem.deleteAsync(`${FileSystem.documentDirectory}photos/${file}`)
+        .then(() => console.log('deleted', file))
     })
-    this.setState({ photoId: 1 })
+    await this.setState({ photoId: 1 })
     Vibration.vibrate();
-    //
   }
 
   getRatios = async function () {
@@ -70,6 +71,12 @@ export default class CameraScreen extends React.Component {
     this.setState({
       whiteBalance: wbOrder[this.state.whiteBalance],
     });
+  }
+
+  customNavigate() {
+    const { navigate } = this.props.navigation
+    this.setState({ flash: 'off' })
+    navigate('CanvasView')
   }
 
   takePicture = async function () {
@@ -132,7 +139,7 @@ export default class CameraScreen extends React.Component {
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.flipButton, styles.galleryButton, { flex: 0.3, alignSelf: 'flex-end' }]}
-              onPress={() => navigate('CanvasView')}>
+              onPress={this.customNavigate.bind(this)}>
               <Text style={styles.flipText}> Canvas View </Text>
             </TouchableOpacity>
             <TouchableOpacity
