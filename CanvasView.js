@@ -11,27 +11,32 @@ const CANVAS_W = 200
 export default class CanvasView extends React.Component {
 
   async componentDidMount() {
-    let cal;
-    let mod;
+    let cal
     let canvas = this.canvasRef
     const filesList = await Expo.FileSystem.readDirectoryAsync(`${FileSystem.documentDirectory}photos`)
-    const src1 = filesList[filesList.length-2]
-    const src2 = filesList[filesList.length-1]
+    console.log(filesList)
+    const src1 = filesList[filesList.length - 2]
     let srcImg = `${FileSystem.documentDirectory}photos/${src1}`
-    let canvas2 = this.canvasRef2
-    let srcImg2 = `${FileSystem.documentDirectory}photos/${src2}`
     const calData = await drawCanvasAsync(srcImg, canvas)
-    const compData = await drawCanvasAsync(srcImg2, canvas2)
     calResult = groupByShade(calData)
-    compResult = groupByShade(compData)
+
     const calRed = calResult.midtone.blueVred
     const calGreen = calResult.midtone.blueVgreen
-    console.log('blue V red', calRed)
-    console.log('blue V green', calGreen)
+    console.log('bVr', Math.round(calRed))
+    // console.log('bVg', Math.round(calGreen))
+
+    // CANVAS 2 LOGIC
+    let mod;
+    const src2 = filesList[filesList.length - 1]
+    let canvas2 = this.canvasRef2
+    let srcImg2 = `${FileSystem.documentDirectory}photos/${src2}`
+    const compData = await drawCanvasAsync(srcImg2, canvas2)
+    compResult = groupByShade(compData)
     const compRed = compResult.midtone.blueVred
     const compGreen = compResult.midtone.blueVgreen
-    console.log('red change',  compRed - calRed)
-    console.log('green change', compGreen - calGreen)
+
+    console.log('rC',  Math.round(compRed - calRed))
+    // console.log('gC', Math.round(compGreen - calGreen))
   }
 
 

@@ -23,7 +23,7 @@ const wbOrder = {
 
 export default class CameraScreen extends React.Component {
   state = {
-    flash: 'off',
+    flash: 'on',
     depth: 0,
     type: 'back',
     whiteBalance: 'fluorescent',
@@ -75,7 +75,7 @@ export default class CameraScreen extends React.Component {
 
   customNavigate() {
     const { navigate } = this.props.navigation
-    this.setState({ flash: 'off' })
+    // this.setState({ flash: 'off' })
     navigate('CanvasView')
   }
 
