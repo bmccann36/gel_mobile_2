@@ -12,6 +12,7 @@ const RootNavigator = StackNavigator({
   CanvasView: {
     screen: CanvasView
   },
+
 });
 
 export default RootNavigator;
